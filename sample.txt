@@ -1,1 +1,466 @@
 Sample content 
+Program 2:
+
+sudo dnf update -y
+
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+sudo systemctl start docker
+
+sudo systemctl enable docker
+
+
+docker --version
+
+
+docker info (use sudo if it does'nt work)
+
+
+docker pull ubuntu
+
+docker run -it ubuntu
+
+	if there is error
+	
+	sudo groupadd docker
+	sudo usermod -aG $USER
+	restart terminal 
+	newgrp docker
+
+	And then run docker run -it ubuntu
+	exit
+
+docker ps
+
+docker ps -a
+
+docker stop <container_id> [Ex:docker stop 931ed6506698]
+
+docker rm <container_id> [Ex: docker rm 931ed6506698]
+
+docker images(should show atleast one iso image)
+
+docker rmi <image name>[Ex:docker rmi ubuntu]
+	if there is an error use force remove 
+	docker rmi -f ubuntu
+	docker rmi -f flask-app
+
+
+Add app.py
+
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello from Docker!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
+echo "flask" > requirements.txt
+
+Add Dockerfile
+
+# Use official Python image with minimal size
+FROM python:3.8-slim
+TT
+# Set working directory inside container
+WORKDIR /app
+
+# Copy current directory contents into the container at /app
+COPY . .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Run the app on container startup
+CMD ["python", "app.py"]
+
+docker build -t flask-app .
+
+docker run -d -p 5000:5000 flask-app
+
+run this in the browser : http://localhost:5000
+
+Step 8: Push Image to Docker Hub
+ Command:
+docker login
+Explanation: Authenticates to Docker Hub.
+Impact: Allows pushing/pulling private or public images.
+ Command:
+docker tag flask-app your_dockerhub_username/flask-app
+Explanation: Tags the image with your Docker Hub username.
+Impact: Prepares the image for upload.
+ Command:
+docker push your_dockerhub_username/flask-app
+Explanation: Uploads the image to your Docker Hub repository.
+Impact: Enables sharing and pulling from anywhere.
+
+
+
+Program 3:
+
+1. Install Docker & Docker Compose
+
+Run these commands to install Docker and Docker Compose on Fedora:
+
+# Update packages
+sudo dnf update -y
+
+# Install Docker
+sudo dnf install -y docker
+
+# Start and enable Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add your user to docker group to run docker without sudo (logout/login required)
+sudo usermod -aG docker $USER
+
+# Install Docker Compose (if not already available)
+sudo dnf install -y docker-compose
+
+Verify installation:
+
+docker --version
+docker-compose --version
+
+2. mkdir microservice-app
+cd microservice-app
+mkdir app db
+
+3. nano app/app.py
+
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Hello from Microservice App!"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+echo "flask" > app/requirements.txt
+
+nano app/Dockerfile
+
+FROM python:3.9
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "app.py"]
+
+4. nano docker-compose.yml
+
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: sampledb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+
+5.docker compose up --build
+
+6. http://localhost:5000
+
+
+Program 5:
+
+1. sudo apt install java-17-jdk
+
+2. sudo apt install maven
+3. java -version 
+maven -version 
+
+4. mvn archetype:generate -DgroupId=com.example -DartifactId=demo-project -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+5. cd demo-project
+6. dependency>
+<groupId>com.google.code.gson</groupId>
+<artifactId>gson</artifactId>
+<version>2.10.1</version>
+</dependency>
+7. mvn compile 
+mvn test
+mvn package
+
+8. java -cp target/demo-project-1.0-SNAPSHOT.jar com.example.App
+
+
+Program 6
+
+1. same as 5 all steps to be done 
+2. delete pom.xml, make sure not to delete src
+3. sudo apt install gradle (version below 4)
+4. Create 2 files
+
+settings.gradle 
+rootProject.name = 'demo-project
+
+build.gradle 
+plugins {
+id 'java'
+}
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+repositories {
+mavenCentral()
+}
+dependencies {
+testImplementation 'junit:junit:4.13.2'
+}
+
+build.gradle 
+apply plugin: 'java'
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
+
+
+5. gradle build
+gradle test
+
+6. java -cp build/libs/demo-project-1.0-SNAPSHOT.jar com.example.App
+
+
+Program 4: 
+
+Experiment 4: Jenkins CI/CD Pipeline Integration with
+SonarQube for Static Code Analysis.
+Objective:
+To install and configure SonarQube for static code analysis, set
+up Jenkins, and create a CI/CD pipeline integrating SonarQube,
+ensuring code quality checks are automatically performed during
+the software build process.
+1. Install Java (Prerequisite)
+Why?
+Both SonarQube and Jenkins require Java (JDK) as a runtime
+environment.
+Steps:
+sudo apt update # Updates the package list
+sudo apt install openjdk-11-jdk -y # Installs OpenJDK 11
+java -version # Verifies Java installation
+ Explanation:
+Java is essential because SonarQube is a Java-based web
+application, and Jenkins is also a Java-based automation
+server. JDK 11 is recommended as it provides stability and
+compatibility for both tools.
+2. Install and Configure SonarQube
+Why?
+SonarQube is used to analyze source code quality. It detects bugs,
+vulnerabilities, code smells, and duplications.
+Steps:
+a. Download SonarQube:
+wget
+https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-
+10.2.1.78527.zip
+unzip sonarqube-10.2.1.78527.zip
+sudo mv sonarqube-10.2.1.78527 /opt/sonarqube
+ Explanation:
+Downloads and extracts SonarQube to the /opt/sonarqube
+directory for central management.
+b. Start SonarQube:
+cd /opt/sonarqube/bin/linux-x86-64
+./sonar.sh start
+ Explanation:
+Starts the SonarQube service in the background.
+Access it via http://localhost:9000.
+c. Login to SonarQube:
+ Open a browser → http://localhost:9000.
+ Default credentials:
+o Username: admin
+o Password: admin
+ Change the password after the first login.
+3. Install and Configure Jenkins
+Why?
+Jenkins is used to automate CI/CD processes such as building,
+testing, and deploying applications. It integrates with SonarQube
+for static code analysis.
+Steps:
+a. Install Jenkins:
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key |
+sudo apt-key add -
+sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ >
+/etc/apt/sources.list.d/jenkins.list'
+sudo apt update
+sudo apt install jenkins -y
+ Explanation:
+Adds Jenkins' repository, updates the package list, and
+installs Jenkins.
+b. Start Jenkins Service:
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+ Explanation:
+Starts Jenkins and enables it to run on system boot.
+Access Jenkins via http://localhost:8080.
+c. Unlock Jenkins:
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+ Copy the displayed password → paste it into the Jenkins
+setup page to unlock.
+ Explanation:
+This step unlocks Jenkins for initial setup.
+ Install suggested plugins during setup.
+4. Integrate SonarQube with Jenkins
+Why?
+To ensure static code analysis is part of the CI/CD pipeline,
+integrating SonarQube with Jenkins allows automated code quality
+checks every time code is built.
+Steps:
+a. Install SonarQube Scanner Plugin in Jenkins:
+ Jenkins Dashboard → Manage Jenkins → Manage Plugins
+→ Available tab.
+ Search for SonarQube Scanner, install it, and restart
+Jenkins.
+b. Configure SonarQube Server in Jenkins:
+ Jenkins Dashboard → Manage Jenkins → Configure
+System.
+ Scroll to SonarQube servers.
+ Add a new server:
+o Name: My SonarQube Server
+o Server URL: http://localhost:9000
+o Authentication Token: Generate it in SonarQube
+(My Account → Security → Generate Tokens).
+ Explanation:
+This allows Jenkins to connect securely with SonarQube for
+analysis.
+5. Create a CI/CD Pipeline Integrating SonarQube
+Two Options:
+1. Freestyle Project
+2. Pipeline Project (Jenkinsfile)
+For Freestyle Project:
+ New Item → Freestyle project → Source Code
+Management (Git) → Enter repository URL.
+ Build Step → Execute SonarQube Scanner.
+Create a sonar-project.properties file in the project’s root:
+sonar.projectKey=myproject
+sonar.sources=src
+sonar.host.url=http://localhost:9000
+sonar.login=<Generated_Token>
+For Pipeline Project (Recommended):
+ New Item → Pipeline → Jenkinsfile:
+pipeline {
+agent any
+tools {
+maven 'Maven3' // Maven tool defined in Jenkins
+}
+stages {
+stage('Build') {
+steps {
+sh 'mvn clean install'
+}
+}
+stage('SonarQube Analysis') {
+steps {
+withSonarQubeEnv('My SonarQube Server') {
+sh 'mvn sonar:sonar'
+}
+}
+}
+}
+}
+ Explanation:
+o Build Stage: Compiles and packages the application
+using Maven.
+o SonarQube Analysis Stage: Runs SonarQube
+scanner integrated with Maven to analyze the source
+code.
+6. Run the Pipeline
+ Trigger the Jenkins job manually or automatically (via
+webhooks).
+ Check the SonarQube dashboard (http://localhost:9000) for
+analysis results (bugs, code smells, vulnerabilities).
+Outcome:
+ This setup ensures automated static code analysis with
+every code build, improving code quality and security.
+ SonarQube reports help detect and fix issues early,
+reducing technical debt.
+ Jenkins orchestrates the continuous integration process,
+automating build and analysis
+
+Program 1:
+[Create a folder , cd folder, git init, git add filename.txt,git commit -m  ["First commit -add newfilews"]
+git remote add origin link
+git push -u origin main
+
+
+1. Version Control Using Git in Browser
+Objective: Learn td Output:
+ A version-controlled project with a history of changes.
+2. Version Coo use GitHub/GitLab/Bitbucket to manage projects.
+Lab Steps:
+1. Sign Up at GitHub or GitLab.
+2. Create a New Repository:
+o Click New Repository.
+o Provide a name and deion.
+o Add a README.md file.
+3. Upload Files Manually:
+o Click Add File > Upload File.
+o Select files and commit changes.
+4. Modify Files Online:
+o Open a file and click Edit.
+o Make changes and commit.
+5. Check File History:
+o Open a file and click History.
+Expected Output:
+ A version-controlled project with a history of changes.
+2. Version Control Using Git with Push and Pull Commands
+Objective: Use Git for version control from the terminal.
+Lab Steps:
+a) Install Git (if not installed):
+b) sudo apt update
+c) sudo apt install git -y
+d) Configure Git:
+e) git config --global user.name "Your Name"
+f) git config --global user.email "you@example.com"
+g) Clone an Existing Repository:
+h) git clone <repository_url>
+i) cd <repo_name>
+j) Modify a File & Commit Changes:
+k) echo "New changes" >> file.txt
+l) git add .
+m) git commit -m "Updated file"
+n) Push to Remote Repository:
+o) git push origin main
+p) Pull Latest Changes:
+q) git pull origin main
+Expected Output:
+ Changes should be reflected on GitHub/GitLab.
+
+
+
+
+
+
+
+
+
+	
